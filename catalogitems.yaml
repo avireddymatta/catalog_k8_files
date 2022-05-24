@@ -15,10 +15,6 @@ spec:
         - name: catalog-items
           image: mattavireddy/catalogitems:v3
           imagePullPolicy: Always
-          resources:
-            limits:
-              memory: "620Mi"
-              cpu: "500m"
           ports:
             - containerPort: 80
               protocol: TCP
