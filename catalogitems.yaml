@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-items-deployment
+spec:
+  selector:
+    matchLabels:
+      app: catalog-items
+  template:
+    metadata:
+      labels:
+        app: catalog-items
+    spec:
+      containers:
+        - name: catalog-items
+          image: mattavireddy/catalogitems:v3
+          resources:
+            limits:
+              memory: "620Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-items-service
+spec:
+  type: ClusterIP
+  selector:
+    app: catalog-items
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
