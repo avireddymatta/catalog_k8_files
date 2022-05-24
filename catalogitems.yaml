@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: catalog-items-deployment
+  annotations:
+    config.linkerd.io/proxy-cpu-limit: "0.4"
+    config.linkerd.io/proxy-cpu-request: "0.05"
 spec:
   selector:
     matchLabels:
@@ -15,6 +18,11 @@ spec:
         - name: catalog-items
           image: mattavireddy/catalogitems:v3
           imagePullPolicy: Always
+          resources:
+          limits:
+            cpu: 450m
+          requests:
+            cpu: 55m
           ports:
             - containerPort: 80
               protocol: TCP

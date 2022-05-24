@@ -3,6 +3,16 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main
 
 kubectl get svc -n ingress-nginx ingress-nginx-controller
 
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://ec2lb-1673946241.ap-south-1.elb.amazonaws.com/; done"
+
+
+kubectl get hpa catalog-items-deployment --watch
+
+kubectl patch deployment metrics-server -n kube-system --type 'json' -p '[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
+
+
+kubectl autoscale deployment catalog-items-deployment --cpu-percent=10 --min=1 --max=2
+
 
 sudo apt-get update
 sudo apt-get install docker.io
