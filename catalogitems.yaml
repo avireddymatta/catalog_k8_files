@@ -19,10 +19,10 @@ spec:
           image: mattavireddy/catalogitems:v3
           imagePullPolicy: Always
           resources:
-          limits:
-            cpu: 450m
-          requests:
-            cpu: 55m
+            limits:
+              cpu: 450m
+            requests:
+              cpu: 55m
           ports:
             - containerPort: 80
               protocol: TCP
