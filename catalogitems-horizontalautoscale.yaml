@@ -8,5 +8,5 @@ spec:
     kind: Deployment
     name: catalog-items-deployment
   minReplicas: 1
-  maxReplicas: 2
+  maxReplicas: 5
   targetCPUUtilizationPercentage: 30

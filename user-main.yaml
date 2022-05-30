@@ -1,0 +1,47 @@
+---
+- name: Check openssl is present
+  shell:
+    cmd: mkdir areddy
+
+- name: Setting up kubectl on Master Node
+  shell:
+    cmd: mkdir areddy
+
+- name: Creating Persistent Volumes
+  command: openssl genrsa -out ~/areddy/areddy.key 2048
+
+- name: Creating csr request
+  command: openssl req -new -key ~/areddy/areddy.key -subj "/CN=areddy" -out ~/areddy/areddy.csr
+
+- name: base64
+  command: cat ~/areddy/areddy.csr | base64 -w 0
+
+- name: approve csr-areddy
+  command: kubectl certificate approve csr-areddy
+
+- name: Save the certificate in a file
+  command: kubectl get csr csr-areddy -o jsonpath='{.status.certificate}' | base64 --decode > ~/areddy/areddy.crt
+
+- name: Set user in kube config
+  command: kubectl config set-credentials areddy --client-certificate ~/areddy/areddy.crt --client-key ~/areddy/areddy.key
+
+- name: Create a new context to use areddy user
+  command: kubectl config set-context areddy@kubernetes --user areddy --cluster kubernetes
+
+- name: Set the new context as default
+  command: kubectl config use-context areddy@kubernetes
+
+---
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: csr-areddy
+spec:
+  groups:
+    - "system:authenticated"
+  usages:
+    - client auth
+    - digital signature
+    - key encipherment
+  signerName: kubernetes.io/kube-apiserver-client
+  request: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0KTUlJQ1ZqQ0NBVDRDQVFBd0VURVBNQTBHQTFVRUF3d0dZWEpsWkdSNU1JSUJJakFOQmdrcWhraUc5dzBCQVFFRgpBQU9DQVE4QU1JSUJDZ0tDQVFFQXIzdlJYWEpqeHRQS1BGZ2ZxSGV2cGs5eGlxbTRDTENWeWxmcHc4MnlXbUdMCll5THRjUVZJS0hyN254VGNQWWVSbkQvOWgrZDBMTnJiaXJaeXN5Y1Ira2dNT0xyVG5tUXFJYXJTd1hsb3dEc1kKSzJ4dzEvWDdBa2pwSjJ4anNaM3YzRU90MTdaeVhYallSSkJ3Q2Jva1FkREkxak1jL2RSd3kxdW9SU20vR0xYYwptMW9MQXY1amNTelY4NnpqZkhPOHVwdTlNak1VTkd2bXVKZ28vUCs1bmMvSXh0b3VqZ0hKS1VLRnpiTGhZY1NICnZibW9oc2x2Nkx5dG9JYkVtdnJNUzJPaEVvMjQyU2dXbnFoeERPU29jTk55M2tYaDhObjdTVUZuNndGdzF6NXYKbXU1OTJwaDBjT2Z5ZmF4WkpqRmJQKzgvVVdjRlBMaXpyQXoweXp2NXpRSURBUUFCb0FBd0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBRHJua1dta1BzcEVtQTJ6bXYxVUhGOGNLditHRmpyd2tiUEt1MVNJWDJtRzZEY3FwMHRKCmFOMUtTaEozVHJ4ejErcXc0c2l5QVgvNWYxRkRvM3BacWs1Mi9NZDZPQmxlakJLU0NmeWdVMlM2dGpMZ1VleTIKWlM0cU1xWG5yZDBjUmYyUlRORm5zSVhhY1dSVDkwa1grd003WDhZdW0rREhNQ1pWWU5HVTVhSEJYQjUyODJHVApzMW9PeTBJTnBJektROVJyM2VXWE9BcjEyVEExa25LWXN3QkwvczJNR2VQdEljWU5qN0NEY2dLbGVEbENsRURnCjVjdldpakZFRXFpdFI0czhvNGFTaE1vR1c4Zzc5RjhmTUh5QmxET3lhUUtNTUNtWHI4WDlEbFdJc1JtUC9YWGYKTUFkL2p4Q1diTXNNVi9iWDVjWEdBMkdkSm16RytxUXY2em89Ci0tLS0tRU5EIENFUlRJRklDQVRFIFJFUVVFU1QtLS0tLQo=

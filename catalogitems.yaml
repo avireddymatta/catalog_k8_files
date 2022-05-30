@@ -3,8 +3,8 @@ kind: Deployment
 metadata:
   name: catalog-items-deployment
   annotations:
-    config.linkerd.io/proxy-cpu-limit: "0.4"
-    config.linkerd.io/proxy-cpu-request: "0.05"
+    config.linkerd.io/proxy-cpu-limit: "0.5"
+    config.linkerd.io/proxy-cpu-request: "0.2"
 spec:
   selector:
     matchLabels:
@@ -20,9 +20,9 @@ spec:
           imagePullPolicy: Always
           resources:
             limits:
-              cpu: 450m
+              cpu: 550m
             requests:
-              cpu: 55m
+              cpu: 200m
           ports:
             - containerPort: 80
               protocol: TCP
