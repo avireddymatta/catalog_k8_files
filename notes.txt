@@ -9,11 +9,28 @@ kubectl autoscale deployment catalog-items-deployment --cpu-percent=10 --min=1 -
 
 Auto Load generator
 ---------------------
-kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://ec2lb-1673946241.ap-south-1.elb.amazonaws.com/; done"
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://ec2lb-822963159.ap-south-1.elb.amazonaws.com/; done"
+
 kubectl get hpa catalog-items-deployment --watch
 
+ab -n 500000 -c 1000  http://ec2lb-822963159.ap-south-1.elb.amazonaws.com/
 
 Ingress Nginx Service
 -----------------------
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
 kubectl get svc -n ingress-nginx ingress-nginx-controller
+
+ https://github.com/etcd-io/etcd/releases/download/v3.5.0/etcd-v3.5.0-linux-amd64.tar.gz
+
+------------
+export RELEASE="3.3.13"
+wget https://github.com/etcd-io/etcd/releases/download/v${RELEASE}/etcd-v${RELEASE}-linux-amd64.tar.gz
+tar xvf etcd-v${RELEASE}-linux-amd64.tar.gz
+cd etcd-v${RELEASE}-linux-amd64
+mv etcdctl /usr/local/bin
+
+ps -ef| grep etcd
+
+ETCDCTL_API=3 etcdctl --endpoints=172.31.6.51:2379  --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot save /etcd-catalog-backup/etcd-snapshot-latest.db
+
+ETCDCTL_API=3 etcdctl snapshot restore /etcd-catalog-backup/etcd-snapshot-latest.db --initial-cluster etcd-restore=https://172.31.6.51:2380 --initial-advertise-peer-urls=https://172.31.6.51:2380 --name etcd-restore --data-dir /var/lib/etcd
