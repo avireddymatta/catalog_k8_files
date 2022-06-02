@@ -3,7 +3,7 @@
   shell:
     cmd: /home/areddy
 
-- name: Creating Persistent Volumes
+- name: Generating key
   command: openssl genrsa -out ~/areddy/areddy.key 2048
 
 - name: Creating csr request
